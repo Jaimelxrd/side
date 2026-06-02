@@ -1,0 +1,14 @@
+{
+  "name": "enso-events-os",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:bot": "npm run dev --workspace=apps/bot",
+    "dev": "npm run dev:web & npm run dev:bot"
+  }
+}
