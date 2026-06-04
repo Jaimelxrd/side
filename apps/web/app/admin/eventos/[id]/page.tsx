@@ -1,6 +1,7 @@
 import { prisma } from "@enso/database"
 import { notFound } from "next/navigation"
 import EventActions from "./EventActions"
+import FormBuilder from "./FormBuilder"
 
 interface Props {
   params: { id: string }
@@ -74,6 +75,13 @@ export default async function EventoPage({ params }: Props) {
       </div>
 
       <EventActions event={eventData} />
+
+            <div className="mt-6">
+        <FormBuilder
+          eventId={event.id}
+          initialFields={event.formFields}
+        />
+      </div>
 
       <div className="bg-white rounded-xl p-6 shadow-sm mt-6">
         <h2 className="font-semibold text-gray-900 mb-4">

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 interface Event {
   id: string
@@ -85,6 +86,13 @@ export default function EventActions({ event }: Props) {
         >
           🔗 Ver página pública
         </a>
+
+        <Link
+          href={`/admin/eventos/${event.id}/staff`}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+        >
+          👥 Tela do Staff
+        </Link>
       </div>
     </div>
   )

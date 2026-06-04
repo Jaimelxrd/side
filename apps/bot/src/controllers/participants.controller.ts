@@ -70,17 +70,20 @@ export const registerParticipant = async (req: Request, res: Response) => {
       },
     })
 
-    // Agenda lembretes e follow-up
-    await scheduleReminders(
+    // ✅ Responde imediatamente — não espera pelas notificações
+    res.status(201).json(eventParticipant)
+
+    // Dispara notificações em background (fire and forget)
+    scheduleReminders(
       eventId,
       participant.id,
       participant.phone,
       participant.name,
       event.name,
       event.startTime
-    )
+    ).catch(err => console.error("Erro nos lembretes:", err))
 
-    await scheduleFollowUp(
+    scheduleFollowUp(
       eventId,
       participant.id,
       participant.phone,
@@ -88,19 +91,17 @@ export const registerParticipant = async (req: Request, res: Response) => {
       participant.name,
       event.name,
       event.endTime
-    )
+    ).catch(err => console.error("Erro no follow-up:", err))
 
-        // Envia email de confirmação
-    await sendConfirmationEmail(
+    sendConfirmationEmail(
       participant.email,
       participant.name,
       event.name,
       event.date,
       event.startTime,
       event.location ?? undefined
-    )
+    ).catch(err => console.error("Erro no email de confirmação:", err))
 
-    res.status(201).json(eventParticipant)
   } catch (error) {
     console.error("Erro ao inscrever participante:", error)
     res.status(500).json({ error: "Erro ao inscrever participante" })

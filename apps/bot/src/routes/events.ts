@@ -6,6 +6,7 @@ import {
   updateEvent,
   publishEvent,
   cancelEvent,
+  updateFormFields,
 } from "../controllers/events.controller"
 import { generateEventQRCodeBuffer } from "../services/qrcode-service"
 import { prisma } from "@enso/database"
@@ -18,6 +19,7 @@ router.get("/:id", getEventById)
 router.put("/:id", updateEvent)
 router.patch("/:id/publish", publishEvent)
 router.patch("/:id/cancel", cancelEvent)
+router.put("/:id/form-fields", updateFormFields)
 
 // Download do QR Code
 router.get("/:id/qrcode", async (req: Request, res: Response) => {

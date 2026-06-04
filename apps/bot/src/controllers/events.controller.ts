@@ -151,3 +151,79 @@ export const cancelEvent = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Erro ao cancelar evento" })
   }
 }
+
+export const updateFormFields = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params
+  const { fields } = req.body
+
+  if (!fields || !Array.isArray(fields)) {
+    res.status(400).json({ error: "fields deve ser um array" })
+    return
+  }
+
+  try {
+    // 1. Campos actuais na BD
+    const existingFields = await prisma.eventFormField.findMany({
+      where: { eventId: id },
+      include: { responses: { take: 1 } },
+    })
+
+    // 2. IDs que vieram no payload
+    const incomingIds = fields
+      .filter((f) => f.id !== undefined)
+      .map((f) => f.id as string)
+
+    // 3. Campos a apagar (não vieram no payload E não têm respostas)
+    const toDelete = existingFields.filter(
+      (f) => !incomingIds.includes(f.id) && f.responses.length === 0
+    )
+
+    // 4. Apagar removidos
+    if (toDelete.length > 0) {
+      await prisma.eventFormField.deleteMany({
+        where: { id: { in: toDelete.map((f) => f.id) } },
+      })
+    }
+
+    // 5. Actualizar existentes
+    for (const f of fields.filter((f) => f.id !== undefined)) {
+      await prisma.eventFormField.update({
+        where: { id: f.id },
+        data: {
+          label: f.label,
+          type: f.type,
+          required: f.required,
+          options: f.options ?? null,
+          order: f.order,
+          isDefault: f.isDefault,
+        },
+      })
+    }
+
+    // 6. Criar novos (sem id)
+    for (const f of fields.filter((f) => f.id === undefined)) {
+      await prisma.eventFormField.create({
+        data: {
+          label: f.label,
+          type: f.type,
+          required: f.required,
+          options: f.options ?? null,
+          order: f.order,
+          isDefault: f.isDefault,
+          eventId: id,
+        },
+      })
+    }
+
+    // 7. Devolver campos actualizados
+    const updatedFields = await prisma.eventFormField.findMany({
+      where: { eventId: id },
+      orderBy: { order: "asc" },
+    })
+
+    res.json({ fields: updatedFields })
+  } catch (error) {
+    console.error("Erro ao guardar formulário:", error)
+    res.status(500).json({ error: "Erro ao guardar formulário" })
+  }
+}
