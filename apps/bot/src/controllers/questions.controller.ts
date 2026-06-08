@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { prisma } from "@enso/database"
 import { analyzeQuestion } from "../services/ai-service"
+import { io } from "../index"
 
 // Submeter pergunta
 export const submitQuestion = async (req: Request, res: Response) => {
@@ -9,7 +10,10 @@ export const submitQuestion = async (req: Request, res: Response) => {
 
     const eventParticipant = await prisma.eventParticipant.findUnique({
       where: { id: eventParticipantId },
-      include: { event: true },
+      include: {
+        event: true,
+        participant: true,
+      },
     })
 
     if (!eventParticipant) {
@@ -30,7 +34,6 @@ export const submitQuestion = async (req: Request, res: Response) => {
       return
     }
 
-    // IA analisa a pergunta
     const aiResult = await analyzeQuestion(content, topic ?? "evento geral")
 
     const question = await prisma.question.create({
@@ -40,6 +43,12 @@ export const submitQuestion = async (req: Request, res: Response) => {
         status: aiResult.approved ? "AI_APPROVED" : "AI_REJECTED",
         aiScore: aiResult.score,
         aiReason: aiResult.reason,
+      },
+      include: {
+        eventParticipant: {
+          include: { participant: true },
+        },
+        votes: true,
       },
     })
 
@@ -51,6 +60,12 @@ export const submitQuestion = async (req: Request, res: Response) => {
       })
       return
     }
+
+    // ✅ Emite para o ecrã do moderador em tempo real
+    io.to(`event:${eventParticipant.event.id}`).emit("question:new", {
+      ...question,
+      voteCount: 0,
+    })
 
     res.status(201).json({ ...question, aiResult })
   } catch (error) {
@@ -125,6 +140,14 @@ export const voteQuestion = async (req: Request, res: Response) => {
       },
     })
 
+    // ✅ Contar votos actuais e emitir para o moderador
+    const voteCount = await prisma.vote.count({ where: { questionId: id } })
+
+    io.to(`event:${question.eventParticipant.eventId}`).emit("question:voted", {
+      questionId: id,
+      voteCount,
+    })
+
     res.status(201).json(vote)
   } catch (error: any) {
     if (error?.code === "P2002") {
@@ -144,6 +167,18 @@ export const updateQuestionStatus = async (req: Request, res: Response) => {
     const question = await prisma.question.update({
       where: { id },
       data: { status },
+      include: {
+        eventParticipant: {
+          include: { participant: true },
+        },
+        votes: true,
+      },
+    })
+
+    // ✅ Emite actualização para o ecrã do moderador
+    io.to(`event:${question.eventParticipant.eventId}`).emit("question:updated", {
+      ...question,
+      voteCount: question.votes.length,
     })
 
     res.json(question)

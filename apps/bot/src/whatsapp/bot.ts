@@ -8,6 +8,7 @@ import path from "path"
 import qrcode from "qrcode-terminal"
 import { prisma } from "@enso/database"
 import { analyzeQuestion } from "../services/ai-service"
+import { io } from "../index"
 
 const AUTH_FOLDER = path.join(__dirname, "../../auth")
 
@@ -69,47 +70,59 @@ async function handleMessage(sock: any, from: string, text: string) {
       break
 
     case "LIVE":
-      const lowerText = text.toLowerCase().trim()
+  const lowerText = text.toLowerCase().trim()
 
-      if (lowerText.startsWith("votar ") || lowerText.startsWith("voto ")) {
-        await sock.sendMessage(from, {
-          text: "Para votar, acede à página do evento e clica no botão de voto na pergunta que preferes. 🗳️",
-        })
-        return
-      }
+  if (lowerText.startsWith("votar ") || lowerText.startsWith("voto ")) {
+    await sock.sendMessage(from, {
+      text: "Para votar, acede à página do evento e clica no botão de voto na pergunta que preferes. 🗳️",
+    })
+    return
+  }
 
-      if (text.length < 10) {
-        await sock.sendMessage(from, {
-          text: "A tua pergunta é muito curta. Escreve uma pergunta completa para o evento. 📝",
-        })
-        return
-      }
+  if (text.length < 10) {
+    await sock.sendMessage(from, {
+      text: "A tua pergunta é muito curta. Escreve uma pergunta completa para o evento. 📝",
+    })
+    return
+  }
 
-      await sock.sendMessage(from, { text: "A tua pergunta está a ser analisada... ⏳" })
+  await sock.sendMessage(from, { text: "A tua pergunta está a ser analisada... ⏳" })
 
-      const aiResult = await analyzeQuestion(text, event.topic)
+  const aiResult = await analyzeQuestion(text, event.topic)
 
-      if (!aiResult.approved) {
-        await sock.sendMessage(from, {
-          text: `A tua pergunta não foi aprovada pela moderação.\n\n_Motivo: ${aiResult.reason}_`,
-        })
-        return
-      }
+  if (!aiResult.approved) {
+    await sock.sendMessage(from, {
+      text: `A tua pergunta não foi aprovada pela moderação.\n\n_Motivo: ${aiResult.reason}_`,
+    })
+    return
+  }
 
-      await prisma.question.create({
-        data: {
-          content: text,
-          eventParticipantId: eventParticipant!.id,
-          status: "AI_APPROVED",
-          aiScore: aiResult.score,
-          aiReason: aiResult.reason,
-        },
-      })
+  const question = await prisma.question.create({
+    data: {
+      content: text,
+      eventParticipantId: eventParticipant!.id,
+      status: "AI_APPROVED",
+      aiScore: aiResult.score,
+      aiReason: aiResult.reason,
+    },
+    include: {
+      eventParticipant: {
+        include: { participant: true },
+      },
+      votes: true,
+    },
+  })
 
-      await sock.sendMessage(from, {
-        text: `✅ A tua pergunta foi aprovada e está na fila!\n\n"${text}"\n\nOs participantes já podem votar nela.`,
-      })
-      break
+  // ✅ Emite para o ecrã do moderador em tempo real
+  io.to(`event:${event.id}`).emit("question:new", {
+    ...question,
+    voteCount: 0,
+  })
+
+  await sock.sendMessage(from, {
+    text: `✅ A tua pergunta foi aprovada e está na fila!\n\n"${text}"\n\nOs participantes já podem votar nela.`,
+  })
+  break
 
     case "FINISHED":
       await sock.sendMessage(from, {
