@@ -32,11 +32,12 @@ interface Props {
   eventId: string
   eventName: string
   initialQuestions: Question[]
+  eventStatus: string
 }
 
 // ─── Componente ────────────────────────────────────────────────────────────
 
-export default function ModeratorClient({ eventId, eventName, initialQuestions }: Props) {
+export default function ModeratorClient({ eventId, eventName, initialQuestions, eventStatus }: Props) {
   const [questions, setQuestions] = useState<Question[]>(initialQuestions)
   const [connected, setConnected] = useState(false)
   const [filter, setFilter] = useState<"all" | "pending" | "answered" | "rejected">("all")
@@ -44,6 +45,8 @@ export default function ModeratorClient({ eventId, eventName, initialQuestions }
 
   // ── Socket.io ─────────────────────────────────────────────────────────────
   useEffect(() => {
+    if (eventStatus !== "PUBLISHED") return  // não liga socket se não está ao vivo
+
     const socket = socketIO(process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001", {
       transports: ["websocket"],
     })
@@ -76,7 +79,7 @@ export default function ModeratorClient({ eventId, eventName, initialQuestions }
     })
 
     return () => { socket.disconnect() }
-  }, [eventId])
+  }, [eventId, eventStatus])
 
   // ── Ordenar por votos ─────────────────────────────────────────────────────
   const sortQuestions = (qs: Question[]) =>

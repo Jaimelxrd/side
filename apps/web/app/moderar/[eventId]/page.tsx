@@ -1,12 +1,17 @@
 import { prisma } from "@enso/database"
 import { notFound } from "next/navigation"
 import ModeratorClient from "./ModeratorClient"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
 interface Props {
   params: { eventId: string }
 }
 
 export default async function ModeratorPage({ params }: Props) {
+  const session = await getServerSession(authOptions)
+  if (!session) redirect("/login")
   const event = await prisma.event.findUnique({
     where: { id: params.eventId },
   })
@@ -36,6 +41,7 @@ export default async function ModeratorPage({ params }: Props) {
       eventId={params.eventId}
       eventName={event.name}
       initialQuestions={questionsWithVotes}
+       eventStatus={event.publicationStatus}
     />
   )
 }

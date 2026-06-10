@@ -9,12 +9,15 @@ import qrcode from "qrcode-terminal"
 import { prisma } from "@enso/database"
 import { analyzeQuestion } from "../services/ai-service"
 import { io } from "../index"
+const sessionState = new Map<string, { action: "question" | "vote"; questions?: any[] }>()
 
 const AUTH_FOLDER = path.join(__dirname, "../../auth")
 
 async function getEventState(phone: string) {
+  const normalizedPhone = phone.startsWith("258") ? phone : `258${phone}`
+
   const participant = await prisma.participant.findUnique({
-    where: { phone },
+    where: { phone: normalizedPhone },
     include: {
       events: {
         include: { event: true },
@@ -69,58 +72,137 @@ async function handleMessage(sock: any, from: string, text: string) {
       })
       break
 
-    case "LIVE":
-  const lowerText = text.toLowerCase().trim()
+      // No topo do ficheiro, fora das funções:
+const sessionState = new Map<string, { action: "question" | "vote"; questions?: any[] }>()
 
-  if (lowerText.startsWith("votar ") || lowerText.startsWith("voto ")) {
+// case "LIVE":
+case "LIVE":
+  if (!eventParticipant!.checkedIn) {
     await sock.sendMessage(from, {
-      text: "Para votar, acede à página do evento e clica no botão de voto na pergunta que preferes. 🗳️",
+      text: "❌ Só participantes com check-in feito podem participar.",
     })
     return
   }
 
-  if (text.length < 10) {
-    await sock.sendMessage(from, {
-      text: "A tua pergunta é muito curta. Escreve uma pergunta completa para o evento. 📝",
-    })
-    return
-  }
+  const session = sessionState.get(from)
+  const lower = text.toLowerCase().trim()
 
-  await sock.sendMessage(from, { text: "A tua pergunta está a ser analisada... ⏳" })
+  // Se está a espera de pergunta
+  if (session?.action === "question") {
+    sessionState.delete(from)
 
-  const aiResult = await analyzeQuestion(text, event.topic)
+    if (text.length < 10) {
+      await sock.sendMessage(from, { text: "❌ Pergunta muito curta. Tenta de novo enviando *2*." })
+      return
+    }
 
-  if (!aiResult.approved) {
-    await sock.sendMessage(from, {
-      text: `A tua pergunta não foi aprovada pela moderação.\n\n_Motivo: ${aiResult.reason}_`,
-    })
-    return
-  }
+    await sock.sendMessage(from, { text: "⏳ A analisar a tua pergunta..." })
 
-  const question = await prisma.question.create({
-    data: {
-      content: text,
-      eventParticipantId: eventParticipant!.id,
-      status: "AI_APPROVED",
-      aiScore: aiResult.score,
-      aiReason: aiResult.reason,
-    },
-    include: {
-      eventParticipant: {
-        include: { participant: true },
+    const aiResult = await analyzeQuestion(text, event.topic ?? "evento geral")
+
+    if (!aiResult.approved) {
+      await sock.sendMessage(from, {
+        text: `❌ Pergunta não aprovada.\n\n_Motivo: ${aiResult.reason}_`,
+      })
+      return
+    }
+
+    const question = await prisma.question.create({
+      data: {
+        content: text,
+        eventParticipantId: eventParticipant!.id,
+        status: "AI_APPROVED",
+        aiScore: aiResult.score,
+        aiReason: aiResult.reason,
       },
-      votes: true,
-    },
-  })
+      include: {
+        eventParticipant: { include: { participant: true } },
+        votes: true,
+      },
+    })
 
-  // ✅ Emite para o ecrã do moderador em tempo real
-  io.to(`event:${event.id}`).emit("question:new", {
-    ...question,
-    voteCount: 0,
-  })
+    io.to(`event:${event.id}`).emit("question:new", { ...question, voteCount: 0 })
 
+    await sock.sendMessage(from, {
+      text: `✅ Pergunta aprovada e na fila!\n\n_"${text}"_`,
+    })
+    return
+  }
+
+  // Se está a espera de voto
+  if (session?.action === "vote" && session.questions) {
+    const num = parseInt(text.trim())
+    if (isNaN(num) || num < 1 || num > session.questions.length) {
+      await sock.sendMessage(from, { text: "❌ Número inválido. Envia o número da pergunta que queres votar." })
+      return
+    }
+
+    sessionState.delete(from)
+    const chosen = session.questions[num - 1]
+
+    try {
+      await prisma.vote.create({
+        data: {
+          questionId: chosen.id,
+          participantId: participant!.id,
+        },
+      })
+
+      const voteCount = await prisma.vote.count({ where: { questionId: chosen.id } })
+      io.to(`event:${event.id}`).emit("question:voted", { questionId: chosen.id, voteCount })
+
+      await sock.sendMessage(from, { text: `✅ Voto registado na pergunta:\n_"${chosen.content}"_` })
+    } catch (err: any) {
+      if (err?.code === "P2002") {
+        await sock.sendMessage(from, { text: "❌ Já votaste nesta pergunta." })
+      } else {
+        await sock.sendMessage(from, { text: "❌ Erro ao registar voto." })
+      }
+    }
+    return
+  }
+
+  // Menu principal
+  if (lower === "1") {
+    const questions = await prisma.question.findMany({
+      where: {
+        eventParticipant: { eventId: event.id },
+        status: { in: ["AI_APPROVED", "APPROVED"] },
+      },
+      include: { votes: true },
+      orderBy: { createdAt: "asc" },
+    })
+
+    const sorted = questions
+      .map(q => ({ ...q, voteCount: q.votes.length }))
+      .sort((a, b) => b.voteCount - a.voteCount)
+
+    if (sorted.length === 0) {
+      await sock.sendMessage(from, { text: "📭 Ainda não há perguntas na fila." })
+      return
+    }
+
+    sessionState.set(from, { action: "vote", questions: sorted })
+
+    const lista = sorted
+      .map((q, i) => `*${i + 1}.* ${q.content}\n    🔺 ${q.voteCount} votos`)
+      .join("\n\n")
+
+    await sock.sendMessage(from, {
+      text: `📋 *Perguntas na fila:*\n\n${lista}\n\nResponde com o *número* da pergunta que queres votar.`,
+    })
+    return
+  }
+
+  if (lower === "2") {
+    sessionState.set(from, { action: "question" })
+    await sock.sendMessage(from, { text: "✍️ Escreve a tua pergunta:" })
+    return
+  }
+
+  // Menu por defeito
   await sock.sendMessage(from, {
-    text: `✅ A tua pergunta foi aprovada e está na fila!\n\n"${text}"\n\nOs participantes já podem votar nela.`,
+    text: `👋 Olá, ${participant!.name}! O evento *${eventName}* está ao vivo.\n\nO que queres fazer?\n\n*1* — Ver perguntas e votar 🗳️\n*2* — Fazer uma pergunta ✍️`,
   })
   break
 

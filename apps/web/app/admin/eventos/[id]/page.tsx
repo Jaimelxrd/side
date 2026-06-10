@@ -38,11 +38,18 @@ export default async function EventoPage({ params }: Props) {
     minute: "2-digit",
   })
 
-  const eventData = {
-    id: event.id,
-    slug: event.slug,
-    publicationStatus: event.publicationStatus,
-  }
+ const eventData = {
+  id: event.id,
+  slug: event.slug,
+  name: event.name,
+  description: event.description,
+  topic: event.topic,
+  date: event.date.toISOString(),
+  startTime: event.startTime.toISOString(),
+  endTime: event.endTime.toISOString(),
+  location: event.location,
+  publicationStatus: event.publicationStatus,
+}
 
   return (
     <div className="max-w-4xl">

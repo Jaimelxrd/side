@@ -51,8 +51,8 @@ export default async function EventosPage() {
                 <div>
                   <h2 className="font-semibold text-gray-900">{event.name}</h2>
                   <p className="text-sm text-gray-500 mt-1">
-                    📅 {new Date(event.date).toLocaleDateString("pt-PT")} ·{" "}
-                    ⏰ {new Date(event.startTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
+                    📅 {new Date(event.date).toLocaleDateString("pt-PT", { timeZone: "Africa/Maputo" })} ·{" "}
+                    ⏰ {new Date(event.startTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Maputo" })}
                     {event.location && ` · 📍 ${event.location}`}
                   </p>
                 </div>

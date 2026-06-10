@@ -21,6 +21,11 @@ export const submitQuestion = async (req: Request, res: Response) => {
       return
     }
 
+      if (!eventParticipant.checkedIn) {
+    res.status(403).json({ error: "Apenas participantes com check-in podem submeter perguntas" })
+    return
+  }
+
     const now = new Date()
     const { startTime, endTime, publicationStatus, topic } = eventParticipant.event
 
@@ -119,19 +124,34 @@ export const voteQuestion = async (req: Request, res: Response) => {
       return
     }
 
-    const eventParticipant = await prisma.eventParticipant.findUnique({
-      where: {
-        eventId_participantId: {
-          eventId: question.eventParticipant.eventId,
-          participantId,
-        },
-      },
-    })
+      const eventParticipant = await prisma.eventParticipant.findUnique({
+  where: {
+    eventId_participantId: {
+      eventId: question.eventParticipant.eventId,
+      participantId,
+    },
+  },
+})
 
-    if (!eventParticipant) {
-      res.status(403).json({ error: "Participante não pertence a este evento" })
-      return
-    }
+if (!eventParticipant) {
+  res.status(403).json({ error: "Participante não pertence a este evento" })
+  return
+}
+
+if (!eventParticipant.checkedIn) {
+  res.status(403).json({ error: "Apenas participantes com check-in podem votar" })
+  return
+}
+
+          const now = new Date()
+      const event = await prisma.event.findUnique({
+        where: { id: question.eventParticipant.eventId }
+      })
+
+      if (!event || now > event.endTime) {
+        res.status(400).json({ error: "Votação encerrada" })
+        return
+      }
 
     const vote = await prisma.vote.create({
       data: {

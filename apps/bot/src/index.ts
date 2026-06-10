@@ -10,6 +10,7 @@ import participantsRouter from "./routes/participants"
 import questionsRouter from "./routes/questions"
 import { startWhatsAppBot } from "./whatsapp/bot"
 import { startWorkers } from "./scheduler/scheduler"
+import { setSock } from "./whatsapp/socket-instance"
 
 const app = express()
 const httpServer = createServer(app)
@@ -57,6 +58,7 @@ httpServer.listen(PORT, () => {
 
 startWhatsAppBot()
   .then((sock) => {
+    setSock(sock)
     startWorkers(sock)
     console.log("✅ Scheduler iniciado")
   })

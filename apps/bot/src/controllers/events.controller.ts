@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { prisma } from "@enso/database"
 import { cancelEventJobs, rescheduleEventJobs } from "../scheduler/scheduler"
 import { generateEventQRCode } from "../services/qrcode-service"
+import { getSock } from "../whatsapp/socket-instance"
 
 // Criar evento
 export const createEvent = async (req: Request, res: Response) => {
@@ -109,6 +110,26 @@ export const updateEvent = async (req: Request, res: Response) => {
         new Date(startTime || event.startTime),
         new Date(endTime || event.endTime)
       )
+
+      const sock = getSock()
+  if (sock) {
+    const participants = await prisma.eventParticipant.findMany({
+      where: { eventId: id },
+      include: { participant: true },
+    })
+
+    const novaHora = new Date(startTime || event.startTime).toLocaleTimeString("pt-PT", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Africa/Maputo",
+    })
+
+    for (const ep of participants) {
+      await sock.sendMessage(`${ep.participant.phone}@s.whatsapp.net`, {
+        text: `📢 O evento *${event.name}* foi actualizado.\n\n⏰ Nova hora de início: *${novaHora}*\n\nAté já!`,
+      }).catch((err: any) => console.error("Erro ao notificar participante:", err))
+    }
+  }
     }
 
     res.json(event)

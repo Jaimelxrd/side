@@ -7,6 +7,7 @@ import { sendConfirmationEmail } from "../services/email-service"
 export const registerParticipant = async (req: Request, res: Response) => {
   try {
     const { eventId, name, phone, email, origin, responses } = req.body
+    const normalizedPhone = phone.startsWith("258") ? phone : `258${phone}`
 
     // Verifica se o evento existe e está publicado
     const event = await prisma.event.findUnique({
@@ -25,12 +26,12 @@ export const registerParticipant = async (req: Request, res: Response) => {
 
     // Cria ou encontra o participante pelo telefone
     let participant = await prisma.participant.findUnique({
-      where: { phone },
+      where: { phone: normalizedPhone },
     })
 
     if (!participant) {
       participant = await prisma.participant.create({
-        data: { name, phone, email },
+        data: { name, phone: normalizedPhone, email },
       })
     }
 
