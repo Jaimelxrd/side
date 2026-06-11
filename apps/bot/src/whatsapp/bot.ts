@@ -9,7 +9,7 @@ import qrcode from "qrcode-terminal"
 import { prisma } from "@enso/database"
 import { analyzeQuestion } from "../services/ai-service"
 import { io } from "../index"
-const sessionState = new Map<string, { action: "question" | "vote"; questions?: any[] }>()
+const sessionState: Map<string, { action: "question" | "vote"; questions?: any[] }> = new Map()
 
 const AUTH_FOLDER = path.join(__dirname, "../../auth")
 
