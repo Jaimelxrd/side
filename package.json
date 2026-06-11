@@ -12,7 +12,11 @@
     "dev": "npm run dev:web & npm run dev:bot"
   },
   "overrides": {
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   }
 }
