@@ -1,11 +1,10 @@
 import { config } from "dotenv"
 import { resolve } from "path"
 
-// Carrega o .env do bot
 config({ path: resolve(__dirname, "../../apps/bot/.env") })
 
 import { PrismaPg } from "@prisma/adapter-pg"
-import { PrismaClient } from "./generated/prisma"
+import { PrismaClient } from "./generated/prisma/index.js"
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
@@ -24,4 +23,4 @@ if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma
 }
 
-export * from "./generated/prisma"
+export * from "./generated/prisma/index.js"
