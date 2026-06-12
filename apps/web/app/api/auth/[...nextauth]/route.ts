@@ -3,8 +3,6 @@ export const runtime = 'nodejs'
 export const fetchCache = 'force-no-store'
 export const revalidate = 0
 
-import NextAuth from "next-auth"
-import { authOptions } from "@/lib/auth"
 
 const handler = NextAuth(authOptions)
 
