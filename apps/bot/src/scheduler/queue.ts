@@ -1,15 +1,18 @@
+Set-Content -Path "C:\Users\administerator\Desktop\Nova Pasta\side\apps\bot\src\scheduler\queue.ts" -Value @"
 import { Queue } from "bullmq"
 import IORedis from "ioredis"
 
-const REDIS_URL = process.env.REDIS_URL ?? "redis://default:JAiQAOYxrlxnsfHsqthqAuKFdcAdltQC@yamanote.proxy.rlwy.net:53545"
-
-console.log("Connecting to Redis:", REDIS_URL)
-
-export const connection = new IORedis(REDIS_URL, {
+const connection = new IORedis({
+  host: "yamanote.proxy.rlwy.net",
+  port: 53545,
+  username: "default",
+  password: "JAiQAOYxrlxnsfHsqthqAuKFdcAdltQC",
   maxRetriesPerRequest: null,
-  lazyConnect: false,
-  enableOfflineQueue: false,
 })
 
+console.log("Connecting to Redis: yamanote.proxy.rlwy.net:53545")
+
+export { connection }
 export const reminderQueue = new Queue("reminders", { connection })
 export const followUpQueue = new Queue("followups", { connection })
+"@
