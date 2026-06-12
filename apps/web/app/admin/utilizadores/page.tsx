@@ -3,8 +3,6 @@ export const runtime = 'nodejs'
 export const fetchCache = 'force-no-store'
 export const revalidate = 0
 import { prisma } from "@enso/database"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import UtilizadoresClient from "./utilizadores-client"
 
