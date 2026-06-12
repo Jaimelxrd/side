@@ -5,8 +5,6 @@ export const revalidate = 0
 import { prisma } from "@enso/database"
 import { notFound } from "next/navigation"
 import ModeratorClient from "./ModeratorClient"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
 interface Props {
