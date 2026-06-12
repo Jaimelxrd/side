@@ -10,6 +10,15 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // ⭐ NOVAS LINHAS - Resolvem o erro n.cache is not a function
+  staticPageGenerationTimeout: 1,
+  generateBuildId: async () => {
+    return 'build-' + Date.now()
+  },
+  // ⭐ NOVA LINHA - Desabilita otimização de rotas API
+  experimental: {
+    serverComponentsExternalPackages: ['@prisma/client', '@enso/database'],
+  },
   webpack: (config) => {
     config.resolve.alias['react'] = path.resolve(__dirname, '../../node_modules/react');
     config.resolve.alias['react-dom'] = path.resolve(__dirname, '../../node_modules/react-dom');
