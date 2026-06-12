@@ -6,11 +6,7 @@ const globalForPrisma = globalThis as unknown as {
 
 function getPrismaClient() {
   return new PrismaClient({
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL,
-      },
-    },
+    datasourceUrl: process.env.DATABASE_URL,
   })
 }
 
