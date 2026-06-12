@@ -1,0 +1,238 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── ORGANIZAÇÃO ───────────────────────────────
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  events Event[]
+  users  User[]
+}
+
+// ─── UTILIZADOR (admin/staff) ──────────────────
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(STAFF)
+  createdAt    DateTime @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+}
+
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+  STAFF
+  MODERATOR
+}
+
+// ─── EVENTO ────────────────────────────────────
+model Event {
+  id                String            @id @default(cuid())
+  name              String
+  description       String?
+  topic             String
+  date              DateTime
+  startTime         DateTime
+  endTime           DateTime
+  location          String?
+  slug              String            @unique
+  publicationStatus PublicationStatus @default(DRAFT)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+
+  formFields   EventFormField[]
+  participants EventParticipant[]
+  followUps    FollowUp[]
+  messageLogs  MessageLog[]
+}
+
+enum PublicationStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+}
+
+// ─── CAMPOS DO FORMULÁRIO ──────────────────────
+model EventFormField {
+  id        String    @id @default(cuid())
+  label     String
+  type      FieldType
+  required  Boolean   @default(false)
+  options   String? // JSON: ["Sim","Não"] para select
+  order     Int
+  isDefault Boolean   @default(false)
+
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String
+
+  responses ParticipantResponse[]
+}
+
+enum FieldType {
+  TEXT
+  NUMBER
+  SELECT
+  CHECKBOX
+}
+
+// ─── PARTICIPANTE ──────────────────────────────
+model Participant {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  email     String
+  createdAt DateTime @default(now())
+
+  events      EventParticipant[]
+  messageLogs MessageLog[]
+  votes       Vote[]
+}
+
+// ─── PARTICIPANTE POR EVENTO ───────────────────
+model EventParticipant {
+  id          String             @id @default(cuid())
+  origin      RegistrationOrigin
+  checkedIn   Boolean            @default(false)
+  checkedInAt DateTime?
+  createdAt   DateTime           @default(now())
+
+  event         Event       @relation(fields: [eventId], references: [id])
+  eventId       String
+  participant   Participant @relation(fields: [participantId], references: [id])
+  participantId String
+
+  responses ParticipantResponse[]
+  questions Question[]
+
+  @@unique([eventId, participantId])
+}
+
+enum RegistrationOrigin {
+  LINK
+  QR_CODE
+  MANUAL
+}
+
+// ─── RESPOSTAS DO FORMULÁRIO ───────────────────
+model ParticipantResponse {
+  id    String @id @default(cuid())
+  value String
+
+  eventParticipant   EventParticipant @relation(fields: [eventParticipantId], references: [id])
+  eventParticipantId String
+
+  field   EventFormField @relation(fields: [fieldId], references: [id])
+  fieldId String
+}
+
+// ─── PERGUNTAS ─────────────────────────────────
+model Question {
+  id                String         @id @default(cuid())
+  content           String
+  aiApproved        Boolean?
+  aiScore           Float?
+  aiReason          String?
+  moderatorApproved Boolean?
+  status            QuestionStatus @default(PENDING)
+  createdAt         DateTime       @default(now())
+
+  eventParticipant   EventParticipant @relation(fields: [eventParticipantId], references: [id])
+  eventParticipantId String
+
+  votes Vote[]
+}
+
+enum QuestionStatus {
+  PENDING
+  AI_APPROVED
+  AI_REJECTED
+  APPROVED
+  REJECTED
+  ANSWERED
+}
+
+// ─── VOTOS ─────────────────────────────────────
+model Vote {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  question      Question    @relation(fields: [questionId], references: [id])
+  questionId    String
+  participant   Participant @relation(fields: [participantId], references: [id])
+  participantId String
+
+  @@unique([questionId, participantId])
+}
+
+// ─── FOLLOW UP ─────────────────────────────────
+model FollowUp {
+  id        String       @id @default(cuid())
+  type      FollowUpType
+  content   String
+  sentAt    DateTime?
+  createdAt DateTime     @default(now())
+
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String
+}
+
+enum FollowUpType {
+  WHATSAPP
+  EMAIL
+}
+
+// ─── LOG DE MENSAGENS ──────────────────────────
+model MessageLog {
+  id        String         @id @default(cuid())
+  type      MessageType
+  channel   MessageChannel
+  status    MessageStatus
+  content   String
+  sentAt    DateTime?
+  error     String?
+  createdAt DateTime       @default(now())
+
+  participant   Participant @relation(fields: [participantId], references: [id])
+  participantId String
+
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String
+}
+
+enum MessageType {
+  CONFIRMATION
+  REMINDER_24H
+  REMINDER_1H
+  QUESTION_REJECTED
+  QUESTION_CONFIRMED
+  FOLLOW_UP
+  CANCELLATION
+}
+
+enum MessageChannel {
+  WHATSAPP
+  EMAIL
+}
+
+enum MessageStatus {
+  PENDING
+  SENT
+  FAILED
+}
