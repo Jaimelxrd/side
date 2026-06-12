@@ -1,5 +1,4 @@
 import { prisma } from "@enso/database"
-import { getServerSession } from "next-auth"
 import Link from "next/link"
 
 export default async function EventosPage() {
