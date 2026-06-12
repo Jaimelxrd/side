@@ -1,7 +1,5 @@
 // apps/web/app/admin/participantes/page.tsx
 import { prisma } from "@enso/database"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 import ParticipantesClient from "./participantes-client"
 
 export default async function ParticipantesPage() {
