@@ -11,7 +11,7 @@ function getPrismaClient() {
   return new PrismaClient({ adapter })
 }
 
-export const prisma = globalForPrisma.prisma ?? getPrismaClient()
+export const prisma: PrismaClient = globalForPrisma.prisma ?? getPrismaClient()
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma
