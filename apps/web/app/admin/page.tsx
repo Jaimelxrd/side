@@ -1,9 +1,10 @@
 import { prisma } from "@enso/database"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import { auth } from "@/auth"
 
 export default async function AdminDashboard() {
-  const session = await getServerSession(authOptions)
+  const session = await auth()
   if (!session) redirect("/login")
 
   const user = session.user as any

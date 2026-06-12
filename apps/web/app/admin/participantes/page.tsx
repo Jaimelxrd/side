@@ -1,9 +1,10 @@
 // apps/web/app/admin/participantes/page.tsx
+import { auth } from "@/auth"
 import { prisma } from "@enso/database"
 import ParticipantesClient from "./participantes-client"
 
 export default async function ParticipantesPage() {
-  const session = await getServerSession(authOptions)
+  const session = await await auth()
   const user = session?.user as any
 
   const participantes = await prisma.participant.findMany({

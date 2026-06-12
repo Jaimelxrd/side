@@ -1,8 +1,9 @@
 import { prisma } from "@enso/database"
 import Link from "next/link"
+import { auth } from "@/auth"
 
 export default async function EventosPage() {
-  const session = await getServerSession()
+  const session = await auth()
   const user = session?.user as any
 
   const events = await prisma.event.findMany({

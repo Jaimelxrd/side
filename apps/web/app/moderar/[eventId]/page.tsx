@@ -6,13 +6,14 @@ import { prisma } from "@enso/database"
 import { notFound } from "next/navigation"
 import ModeratorClient from "./ModeratorClient"
 import { redirect } from "next/navigation"
+import { auth } from "@/auth"
 
 interface Props {
   params: { eventId: string }
 }
 
 export default async function ModeratorPage({ params }: Props) {
-  const session = await getServerSession(authOptions)
+  const session = await auth()
   if (!session) redirect("/login")
   const event = await prisma.event.findUnique({
     where: { id: params.eventId },
