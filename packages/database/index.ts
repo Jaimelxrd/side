@@ -1,11 +1,21 @@
+import { PrismaPg } from "@prisma/adapter-pg"
 import { PrismaClient } from "./generated/prisma/index.js"
+import pg from "pg"
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-// Remove o datasourceUrl - o Prisma usa a variável DATABASE_URL automaticamente
-export const prisma: PrismaClient = globalForPrisma.prisma ?? new PrismaClient()
+function getPrismaClient() {
+  const pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL,
+  })
+  const adapter = new PrismaPg(pool)
+  return new PrismaClient({ adapter })
+}
+
+export const prisma: PrismaClient =
+  globalForPrisma.prisma ?? getPrismaClient()
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma
