@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "apps/web/app/api/admin/utilizadores/[id]/route.ts": {
+      "runtime": "edge"
+    }
+  }
+}
