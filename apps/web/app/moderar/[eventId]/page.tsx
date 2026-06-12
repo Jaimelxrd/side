@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { prisma } from "@enso/database"
 import { notFound } from "next/navigation"
 import ModeratorClient from "./ModeratorClient"
