@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs"
 
 // ✅ Apenas isso para API routes
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 export async function PATCH(
   req: NextRequest, 

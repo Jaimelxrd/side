@@ -15,7 +15,7 @@ const nextConfig = {
   },
   
   // ⭐ FORÇAR NÃO PRÉ-RENDERIZAR NADA ⭐
-  staticPageGenerationTimeout: 1,
+  staticPageGenerationTimeout: 120,
   
   generateBuildId: async () => {
     return 'build-' + Date.now()
