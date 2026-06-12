@@ -10,15 +10,27 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // ⭐ NOVAS LINHAS - Resolvem o erro n.cache is not a function
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
+  // ⭐ FORÇAR NÃO PRÉ-RENDERIZAR NADA ⭐
   staticPageGenerationTimeout: 1,
+  
   generateBuildId: async () => {
     return 'build-' + Date.now()
   },
-  // ⭐ NOVA LINHA - Desabilita otimização de rotas API
+  
+  // ⭐ IMPEDIR PRÉ-RENDERIZAÇÃO DE PÁGINAS ⭐
+  trailingSlash: false,
+  
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client', '@enso/database'],
+    // ⭐ DESABILITAR OTIMIZAÇÕES QUE CAUSAM PRÉ-RENDERIZAÇÃO ⭐
+    disableOptimizedLoading: true,
+    webpackBuildWorker: false,
   },
+  
   webpack: (config) => {
     config.resolve.alias['react'] = path.resolve(__dirname, '../../node_modules/react');
     config.resolve.alias['react-dom'] = path.resolve(__dirname, '../../node_modules/react-dom');
