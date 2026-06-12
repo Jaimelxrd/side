@@ -1,15 +1,11 @@
-import { Queue, Worker, QueueEvents } from "bullmq"
+import { Queue } from "bullmq"
 import IORedis from "ioredis"
 
-console.log("REDIS_URL:", process.env.REDIS_URL)
+const REDIS_URL = process.env.REDIS_URL ?? "redis://default:JAiQAOYxrlxnsfHsqthqAuKFdcAdltQC@yamanote.proxy.rlwy.net:53545"
 
-export const connection = new IORedis(
-  process.env.REDIS_URL || "redis://localhost:6379",
-  { maxRetriesPerRequest: null }
-)
+console.log("Connecting to Redis:", REDIS_URL)
 
-// Queues
+export const connection = new IORedis(REDIS_URL, { maxRetriesPerRequest: null })
+
 export const reminderQueue = new Queue("reminders", { connection })
 export const followUpQueue = new Queue("followups", { connection })
-
-console.log("✅ Queues BullMQ inicializadas")
