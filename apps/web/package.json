@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build --no-lint",
+   "build": "next build --no-lint && node scripts/copy-prisma-engine.mjs",
     "start": "next start",
     "lint": "next lint"
   },
