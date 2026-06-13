@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 const nextConfig = {
   output: "standalone",
   outputFileTracingIncludes: {
-    "./**/*": ["../../packages/database/generated/prisma/**/*"],
+    "/**/*": ["./packages/database/generated/prisma/**/*"],
   },
   typescript: {
     ignoreBuildErrors: true,

@@ -2,7 +2,7 @@ import fs from "fs"
 import path from "path"
 
 const src = path.resolve("../../packages/database/generated/prisma")
-const dest = path.resolve(".next/standalone/apps/web/packages/database/generated/prisma")
+const dest = path.resolve("./packages/database/generated/prisma")
 
 fs.mkdirSync(dest, { recursive: true })
 
