@@ -4,7 +4,6 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useEffect } from "react"
 
-export const dynamic = 'force-dynamic'
 
 export default function AdminLayout({
   children,
