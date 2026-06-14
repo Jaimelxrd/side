@@ -23,6 +23,8 @@ export default async function StaffPage({ params }: Props) {
   })
 
   if (!event) return notFound()
+const now = new Date()
+  const ended = new Date(event.endTime) < now
 
   return (
     <div className="max-w-2xl">
@@ -30,7 +32,7 @@ export default async function StaffPage({ params }: Props) {
         <h1 className="text-2xl font-bold text-gray-900">Tela do Staff</h1>
         <p className="text-gray-500 mt-1">{event.name}</p>
       </div>
-      <StaffClient event={event} />
+      <StaffClient event={event} ended={ended} />
     </div>
   )
 }

@@ -36,16 +36,16 @@ interface Event {
 
 interface Props {
   event: Event
+  ended: boolean
 }
 
 // ─── Componente principal ──────────────────────────────────────────────────
 
-export default function StaffClient({ event }: Props) {
+export default function StaffClient({ event, ended }: Props) {
   const [tab, setTab] = useState<"checkin" | "register">("checkin")
 
   return (
     <div>
-      {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 p-1 rounded-xl mb-6">
         <button
           onClick={() => setTab("checkin")}
@@ -55,22 +55,32 @@ export default function StaffClient({ event }: Props) {
               : "text-gray-500 hover:text-gray-700"
           }`}
         >
-           Check-in
+          Check-in
         </button>
         <button
-          onClick={() => setTab("register")}
+          onClick={() => !ended && setTab("register")}
+          disabled={ended}
           className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
             tab === "register"
               ? "bg-white text-gray-900 shadow-sm"
+              : ended
+              ? "text-gray-300 cursor-not-allowed"
               : "text-gray-500 hover:text-gray-700"
           }`}
         >
-           Inscrição manual
+          Inscrição manual {ended && ""}
         </button>
       </div>
 
       {tab === "checkin" && <CheckInTab event={event} />}
-      {tab === "register" && <RegisterTab event={event} />}
+      {tab === "register" && !ended && <RegisterTab event={event} />}
+      {tab === "register" && ended && (
+        <div className="bg-white rounded-xl p-8 shadow-sm text-center">
+          <div className="text-4xl mb-3"></div>
+          <h2 className="text-lg font-bold text-gray-900">Inscrições encerradas</h2>
+          <p className="text-gray-500 text-sm mt-1">Este evento já terminou.</p>
+        </div>
+      )}
     </div>
   )
 }
@@ -138,7 +148,7 @@ function CheckInTab({ event }: { event: Event }) {
 
       {/* Pesquisa */}
       <div className="relative mb-3">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></span>
         <input
           type="text"
           placeholder="Pesquisar por nome ou telefone..."
@@ -175,7 +185,7 @@ function CheckInTab({ event }: { event: Event }) {
               </div>
               {isChecked ? (
                 <span className="text-xs text-green-600 font-medium flex items-center gap-1">
-                  ✅ Feito
+                   Feito
                 </span>
               ) : (
                 <button
@@ -262,7 +272,7 @@ function RegisterTab({ event }: { event: Event }) {
   if (success) {
     return (
       <div className="bg-white rounded-xl p-8 shadow-sm text-center">
-        <div className="text-5xl mb-4">✅</div>
+        <div className="text-5xl mb-4"></div>
         <h2 className="text-lg font-bold text-gray-900">Inscrito com sucesso!</h2>
         <p className="text-gray-500 text-sm mt-1 mb-6">
           O participante foi adicionado ao evento.

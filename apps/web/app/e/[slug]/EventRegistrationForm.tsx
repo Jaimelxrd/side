@@ -71,7 +71,7 @@ export default function EventRegistrationForm({ event, ended }: Props) {
   if (ended) {
     return (
       <div className="bg-white rounded-xl p-6 shadow-sm text-center">
-        <div className="text-4xl mb-4">🔒</div>
+        <div className="text-4xl mb-4"></div>
         <h2 className="text-xl font-bold text-gray-900">Inscrições encerradas</h2>
         <p className="text-gray-500 mt-2">
           Este evento já terminou. As inscrições estão fechadas.
