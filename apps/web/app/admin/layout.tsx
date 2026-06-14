@@ -31,14 +31,14 @@ export default function AdminLayout({
   if (!session) return null
 
   const navItems = [
-    { href: "/admin", label: "Dashboard", icon: "📊" },
-    { href: "/admin/eventos", label: "Eventos", icon: "📅" },
-    { href: "/admin/participantes", label: "Participantes", icon: "👥" },
+    { href: "/admin", label: "Dashboard", icon: "" },
+    { href: "/admin/eventos", label: "Eventos", icon: "" },
+    { href: "/admin/participantes", label: "Participantes", icon: "" },
   ]
 
   // Só SUPER_ADMIN vê gestão de admins
   if ((session.user as any)?.role === "SUPERADMIN") {
-    navItems.push({ href: "/admin/utilizadores", label: "Utilizadores", icon: "👤" })
+    navItems.push({ href: "/admin/utilizadores", label: "Utilizadores", icon: "" })
   }
 
   return (

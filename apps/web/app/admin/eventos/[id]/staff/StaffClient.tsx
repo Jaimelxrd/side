@@ -55,7 +55,7 @@ export default function StaffClient({ event }: Props) {
               : "text-gray-500 hover:text-gray-700"
           }`}
         >
-          ✅ Check-in
+           Check-in
         </button>
         <button
           onClick={() => setTab("register")}
@@ -65,7 +65,7 @@ export default function StaffClient({ event }: Props) {
               : "text-gray-500 hover:text-gray-700"
           }`}
         >
-          ➕ Inscrição manual
+           Inscrição manual
         </button>
       </div>
 

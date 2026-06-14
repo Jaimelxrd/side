@@ -32,9 +32,9 @@ interface Props {
 // ─── Campos fixos ──────────────────────────────────────────────────────────
 
 const FIXED_FIELDS = [
-  { label: "Nome completo", icon: "👤" },
-  { label: "Telefone", icon: "📱" },
-  { label: "Email", icon: "✉️" },
+  { label: "Nome completo", icon: "" },
+  { label: "Telefone", icon: "" },
+  { label: "Email", icon: "" },
 ]
 
 // ─── Campos padrão opcionais ───────────────────────────────────────────────

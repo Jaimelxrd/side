@@ -70,9 +70,9 @@ export default async function EventoPage({ params }: Props) {
       <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
         <h2 className="font-semibold text-gray-900 mb-4">Detalhes</h2>
         <div className="space-y-2 text-sm text-gray-600">
-          <p>📅 {date}</p>
-          <p>⏰ {startHour} — {endHour}</p>
-          {event.location && <p>📍 {event.location}</p>}
+          <p> {date}</p>
+          <p> {startHour} — {endHour}</p>
+          {event.location && <p> {event.location}</p>}
           {event.description && <p className="mt-3">{event.description}</p>}
         </div>
         <div className="mt-4 pt-4 border-t">

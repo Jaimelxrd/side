@@ -117,36 +117,36 @@ export default function EventActions({ event }: Props) {
           {event.publicationStatus === "DRAFT" && (
             <button onClick={handlePublish} disabled={loading === "publish"}
               className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50">
-              {loading === "publish" ? "A publicar..." : "✅ Publicar evento"}
+              {loading === "publish" ? "A publicar..." : " Publicar evento"}
             </button>
           )}
           {event.publicationStatus !== "CANCELLED" && new Date() < new Date(event.endTime) &&(
             <>
               <button onClick={() => setEditOpen(true)}
                 className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200">
-                ✏️ Editar evento
+                 Editar evento
               </button>
               <button onClick={handleCancel} disabled={loading === "cancel"}
                 className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 disabled:opacity-50">
-                {loading === "cancel" ? "A cancelar..." : "❌ Cancelar evento"}
+                {loading === "cancel" ? "A cancelar..." : " Cancelar evento"}
               </button>
             </>
           )}
           <button onClick={handleDownloadQR} disabled={loading === "qr"}
             className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 disabled:opacity-50">
-            {loading === "qr" ? "A gerar..." : "📱 Descarregar QR Code"}
+            {loading === "qr" ? "A gerar..." : " Descarregar QR Code"}
           </button>
           <a href={`/e/${event.slug}`} target="_blank"
             className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200">
-            🔗 Ver página pública
+             Ver página pública
           </a>
           <Link href={`/admin/eventos/${event.id}/staff`}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
-            👥 Tela do Staff
+             Tela do Staff
           </Link>
           <Link href={`/moderar/${event.id}`} target="_blank"
             className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700">
-            📺 Ecrã do Moderador
+            Ecrã do Moderador
           </Link>
         </div>
       </div>
@@ -194,7 +194,7 @@ export default function EventActions({ event }: Props) {
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-2">⏰ Horário de Moçambique (UTC+2)</p>
+              <p className="text-xs text-gray-400 mt-2"> Horário de Moçambique (UTC+2)</p>
             </div>
             <div className="flex gap-3 mt-5">
               <button onClick={handleEdit} disabled={loading === "edit"}

@@ -51,7 +51,7 @@ export default function UtilizadoresClient({ users }: { users: User[] }) {
         </div>
         <Link href="/admin/utilizadores/novo"
           className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800">
-          + Novo utilizador
+           Novo utilizador
         </Link>
       </div>
 
@@ -94,7 +94,7 @@ export default function UtilizadoresClient({ users }: { users: User[] }) {
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black mb-3"
             />
             {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
-            {success && <p className="text-green-600 text-sm mb-3">✅ Senha alterada com sucesso!</p>}
+            {success && <p className="text-green-600 text-sm mb-3">Senha alterada com sucesso!</p>}
             <div className="flex gap-3">
               <button onClick={handleChangePassword} disabled={loading || password.length < 6}
                 className="flex-1 bg-black text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50">
