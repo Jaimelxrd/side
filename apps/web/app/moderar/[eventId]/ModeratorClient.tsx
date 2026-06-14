@@ -33,15 +33,19 @@ interface Props {
   eventName: string
   initialQuestions: Question[]
   eventStatus: string
+  startTime: string
+  endTime: string
 }
 
 // ─── Componente ────────────────────────────────────────────────────────────
 
-export default function ModeratorClient({ eventId, eventName, initialQuestions, eventStatus }: Props) {
+export default function ModeratorClient({ eventId, eventName, initialQuestions, eventStatus, startTime, endTime }: Props) {
   const [questions, setQuestions] = useState<Question[]>(initialQuestions)
   const [connected, setConnected] = useState(false)
   const [filter, setFilter] = useState<"all" | "pending" | "answered" | "rejected">("all")
   const [loadingId, setLoadingId] = useState<string | null>(null)
+  const now = new Date()
+  const isLive = new Date(startTime) <= now && new Date(endTime) >= now
 
   // ── Socket.io ─────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -127,11 +131,18 @@ export default function ModeratorClient({ eventId, eventName, initialQuestions, 
             <p className="text-xs text-gray-400">por responder</p>
           </div>
           <div className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full ${
-            connected ? "bg-green-900 text-green-400" : "bg-red-900 text-red-400"
-          }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-green-400" : "bg-red-400"}`} />
-            {connected ? "Em directo" : "Desligado"}
-          </div>
+  isLive && connected
+    ? "bg-green-900 text-green-400"
+    : isLive && !connected
+    ? "bg-yellow-900 text-yellow-400"
+    : "bg-gray-800 text-gray-400"
+}`}>
+  <span className={`w-1.5 h-1.5 rounded-full ${
+    isLive && connected ? "bg-green-400" :
+    isLive && !connected ? "bg-yellow-400" : "bg-gray-400"
+  }`} />
+  {isLive && connected ? "Em directo" : isLive && !connected ? "A ligar..." : "Evento não está ao vivo"}
+</div>
         </div>
       </div>
 

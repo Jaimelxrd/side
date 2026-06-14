@@ -41,10 +41,12 @@ export default async function ModeratorPage({ params }: Props) {
 
   return (
     <ModeratorClient
-      eventId={params.eventId}
-      eventName={event.name}
-      initialQuestions={questionsWithVotes}
-       eventStatus={event.publicationStatus}
-    />
+  eventId={params.eventId}
+  eventName={event.name}
+  initialQuestions={questionsWithVotes}
+  eventStatus={event.publicationStatus}
+  startTime={event.startTime.toISOString()}
+  endTime={event.endTime.toISOString()}
+/>
   )
 }

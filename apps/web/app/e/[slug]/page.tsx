@@ -22,6 +22,9 @@ export default async function EventPage({ params }: Props) {
     notFound()
   }
 
+  const now = new Date()
+  const ended = new Date(event.endTime) < now
+
   const date = new Date(event.date).toLocaleDateString("pt-PT", {
     weekday: "long",
     year: "numeric",
@@ -37,23 +40,18 @@ export default async function EventPage({ params }: Props) {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-lg mx-auto px-4 py-8">
-
-        {/* Cabeçalho do evento */}
         <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
           <h1 className="text-2xl font-bold text-gray-900">{event.name}</h1>
           {event.description && (
             <p className="text-gray-600 mt-2">{event.description}</p>
           )}
           <div className="mt-4 space-y-1 text-sm text-gray-500">
-            <p>📅 {date}</p>
-            <p>⏰ {hour}</p>
-            {event.location && <p>📍 {event.location}</p>}
+            <p> {date}</p>
+            <p> {hour}</p>
+            {event.location && <p> {event.location}</p>}
           </div>
         </div>
-
-        {/* Formulário de inscrição */}
-        <EventRegistrationForm event={event} />
-
+        <EventRegistrationForm event={event} ended={ended} />
       </div>
     </div>
   )
