@@ -114,7 +114,7 @@ export default async function AdminDashboard() {
                         minute: "2-digit",
                       })}h
                       {" · "}
-                      👥 {event._count.participants}{" "}
+                       {event._count.participants}{" "}
                       {event._count.participants !== 1 ? "participantes" : "participante"}
                     </p>
                   </div>

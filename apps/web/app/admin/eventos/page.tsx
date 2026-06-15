@@ -58,7 +58,7 @@ export default async function EventosPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-gray-500">
-                    👥 {event._count.participants}
+                     {event._count.participants}
                   </span>
                   <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                     event.publicationStatus === "PUBLISHED"
