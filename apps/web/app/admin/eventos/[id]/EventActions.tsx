@@ -26,17 +26,19 @@ export default function EventActions({ event }: Props) {
   const [loading, setLoading] = useState<string | null>(null)
   const [editOpen, setEditOpen] = useState(false)
   
-  const toLocalTime = (isoString: string) => {
-    const date = new Date(isoString)
-    const local = new Date(date.getTime() + 2 * 60 * 60 * 1000)
-    return local.toISOString().slice(11, 16)
-  }
+const toLocalTime = (isoString: string) => {
+  return new Date(isoString).toLocaleTimeString("pt-PT", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Africa/Maputo",
+  })
+}
 
-  const toLocalDate = (isoString: string) => {
-    const date = new Date(isoString)
-    const local = new Date(date.getTime() + 2 * 60 * 60 * 1000)
-    return local.toISOString().slice(0, 10)
-  }
+const toLocalDate = (isoString: string) => {
+  return new Date(isoString).toLocaleDateString("en-CA", {
+    timeZone: "Africa/Maputo",
+  }) // en-CA dá formato YYYY-MM-DD que o input type="date" precisa
+}
 
   const [form, setForm] = useState({
     name: event.name,
