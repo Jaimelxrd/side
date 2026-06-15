@@ -112,7 +112,7 @@ const endHour = new Date(event.endTime).toLocaleTimeString("pt-PT", {
                   <p className="text-xs text-gray-500">{ep.participant.phone} · {ep.participant.email}</p>
                 </div>
                 <span className={`text-xs px-2 py-1 rounded-full ${ep.checkedIn ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                  {ep.checkedIn ? "✅ Check-in" : "Pendente"}
+                  {ep.checkedIn ? " Check-in" : "Pendente"}
                 </span>
               </div>
             ))}

@@ -1,8 +1,7 @@
 "use client"
-import { useSession, signOut } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-
 
 export default function NovoEventoPage() {
   const router = useRouter()
@@ -45,15 +44,15 @@ export default function NovoEventoPage() {
     setError("")
 
     try {
-      const startStr = `${form.date}T${form.startTime}:00`
-      const endStr = `${form.date}T${form.endTime}:00`
+      const startStr = new Date(`${form.date}T${form.startTime}:00+02:00`).toISOString()
+      const endStr = new Date(`${form.date}T${form.endTime}:00+02:00`).toISOString()
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          date: form.date,
+          date: new Date(`${form.date}T00:00:00+02:00`).toISOString(),
           startTime: startStr,
           endTime: endStr,
           organizationId: (session?.user as any)?.organizationId,
