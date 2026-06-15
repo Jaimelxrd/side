@@ -26,21 +26,24 @@ export default async function EventoPage({ params }: Props) {
   if (!event) return notFound()
 
   const date = new Date(event.date).toLocaleDateString("pt-PT", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
+  weekday: "long",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "Africa/Maputo",
+})
 
-  const startHour = new Date(event.startTime).toLocaleTimeString("pt-PT", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+const startHour = new Date(event.startTime).toLocaleTimeString("pt-PT", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Africa/Maputo",
+})
 
-  const endHour = new Date(event.endTime).toLocaleTimeString("pt-PT", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+const endHour = new Date(event.endTime).toLocaleTimeString("pt-PT", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Africa/Maputo",
+})
 
  const eventData = {
   id: event.id,

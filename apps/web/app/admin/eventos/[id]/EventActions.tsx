@@ -64,6 +64,17 @@ export default function EventActions({ event }: Props) {
     router.refresh()
     setLoading(null)
   }
+  const handleDelete = async () => {
+  if (!confirm("Tens a certeza que queres APAGAR este evento? Esta acção é irreversível e remove todos os participantes e dados associados.")) return
+  setLoading("delete")
+  const res = await fetch(`/api/admin/eventos/${event.id}`, { method: "DELETE" })
+  if (res.ok) {
+    router.push("/admin/eventos")
+  } else {
+    alert("Erro ao apagar evento.")
+    setLoading(null)
+  }
+}
 
   const handleDownloadQR = async () => {
     setLoading("qr")
@@ -130,6 +141,11 @@ export default function EventActions({ event }: Props) {
                 className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 disabled:opacity-50">
                 {loading === "cancel" ? "A cancelar..." : " Cancelar evento"}
               </button>
+              <button onClick={handleDelete}
+          disabled={loading === "delete"}
+          className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">
+          {loading === "delete" ? "A apagar..." : " Apagar evento"}
+          </button>
             </>
           )}
           <button onClick={handleDownloadQR} disabled={loading === "qr"}
