@@ -107,11 +107,13 @@ export default async function AdminDashboard() {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
+                        timeZone: "Africa/Maputo",
                       })}
                       {" · "}
                       {new Date(event.startTime).toLocaleTimeString("pt-PT", {
                         hour: "2-digit",
                         minute: "2-digit",
+                        timeZone: "Africa/Maputo",
                       })}h
                       {" · "}
                        {event._count.participants}{" "}
